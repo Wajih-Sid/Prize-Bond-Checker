@@ -8,24 +8,37 @@ import requests
 import sys
 import os
 import argparse
+import datetime
+
+def validate_date(s):
+	try:
+		s = s.split('-')
+		year = s[0]
+		month = s[1]
+		day = s[2]
+		dt = datetime.datetime(int(year), int(month), int(day))
+		dt = dt.strftime("%Y-%m-%d")
+	except ValueError:
+		msg = "Not a valid date: '{0}'.".format(s)
+		raise argparse.ArgumentTypeError(msg)
+
+	return dt
+
+base_url = 'http://saving.com.pk/'
 parser = argparse.ArgumentParser()
-parser.add_argument("--url", help="Url for the draw containing serial numbers")
-parser.add_argument("--filepath", help="File Path Containing Serial Numbers of your Prize Bonds.")
+# parser.add_argument("--url", help="Url for the draw containing serial numbers", required=True)
+parser.add_argument("--amount", help="Amount of the Prize Bond you wish to search", required=True)
+parser.add_argument("--date", help="Date of the draw. The format is YYYY-MM-DD", type=validate_date, required=True)
+parser.add_argument("--filepath", help="File Path Containing Serial Numbers of your Prize Bonds.", required=True)
+
 args = parser.parse_args()
 
 # Might change depending on the bonds, so update accordingly.
 SERIAL_NUMBERS_LENGTH = 6
 
 def main():
-	if not args.url:
-	    print "---------------Please enter url to continue.-----------------------"
-	    sys.exit()
 
-	if not args.filepath:
-		print "----Error: Please Enter the file path containing serials numbers ----"
-		sys.exit()
-
-	print "-------------------Processing List of Prize Bonds ---------------------"
+	print "-------------------Processing: Processing List of Prize Bonds ---------------------"
 	try:
 		path = os.getcwd() + '/' + args.filepath
 		file = open(path, 'r')
@@ -35,23 +48,25 @@ def main():
 		for line in file:
 			line = line.rstrip()
 			if not isinstance(line, str) or len(line) != SERIAL_NUMBERS_LENGTH:
-				print "------------Invalid entry in serial numbers: Aborting!--------------"
+				print "------------Error: Invalid entry in serial numbers: Aborting!--------------"
 				sys.exit()
 
 			user_serial_numbers.append(line)
 	except:
-		print "-----------------------Invalid file path or file provided: Bailing out!--------------"
+		print "-----------------------Error: Invalid file path or file provided: Bailing out!--------------"
 		sys.exit()
 
 
-	print "-------------------Parsing prize bonds list from provided url----------"
+	final_url = 'http://saving.com.pk/{amount}/{date}'.format(amount=args.amount, date=args.date)
+	print "-------------------Processing: Parsing prize bonds list from provided url %s" % final_url
 
 	html_content = ''
 	try:
-		response = requests.get(args.url)
+		# No need to check for responses other than <200>, These guys are too generous to open any link without a 404 :D
+		response = requests.get(final_url)
 		html_content = response.content
 	except:
-		print "-------------Invalid data received from provided url: Bailing Out!-----------"
+		print "-------------Error: Invalid data received from provided url: Bailing Out!-----------"
 		sys.exit()
 
 	soup = BeautifulSoup(html_content, 'html.parser')
@@ -59,14 +74,18 @@ def main():
 	list_numbers = []
 	try:
 		all_serial_numbers =  soup.article.div.div.find_all('div')[-2].find_all('span')
+		if not all_serial_numbers:
+			print "-------------------Error: No Data on Link Provided----------------"
+			sys.exit()
 		for sno in all_serial_numbers:
 			list_numbers.append(str(sno.text).strip())
 
 	except:
-		print "-------------------Failed to parse data from website: Bailing out!------------"
+		print "-------------------Error: Failed to parse data from website: Bailing out!------------"
+		sys.exit()
 
 
-	print "-------------------------Now Comes the good part!------------------\n ------------Searching for your serial numbers in the list----------"
+	print "-------------------------Processing: Now Comes the good part!------------------\n ------------Searching for your serial numbers in the list----------"
 
 	draw = []
 
@@ -75,13 +94,13 @@ def main():
 			draw.append(serial)
 
 	if not draw:
-		print "-------------------------Sorry no luck :( ----------------------------------"
+		print "-------------------------Error: Sorry no luck :( ----------------------------------"
 		print "--------------------------------Exiting---------------------------------"
 		sys.exit()
 
 
-	print "-----------What!!!!!!!!!-- You Actually won something bro!---------"
-	print "---- Here is the list of numbers you won %s" % draw
+	print "-----------Processing: What!!!!!!!!!-- You Actually won something bro!---------"
+	print "---- Processing: Here is the list of numbers you won %s" % draw
 
 
 # Entry point
