@@ -71,6 +71,21 @@ def main():
 
 	soup = BeautifulSoup(html_content, 'html.parser')
 
+
+	print "----------------------Processing: Looking for the big prizes first!-----------------"
+	try:
+		first_prize = (soup.findAll('strong')[6].p.get_text())
+		second_prizes = soup.findAll('strong')[7].p.get_text().replace(u'\xa0','').rstrip().split()
+		
+		import pdb
+		pdb.set_trace()
+		if first_prize in user_serial_numbers:
+			print "Un Real dude!"
+		elif set(second_prizes).intersection(set(user_serial_numbers)):
+			print "You won the second prize!!!!"
+	except:
+		print "------------------Bad parsing of the html... Bailing out!-----------------"
+
 	list_numbers = []
 	try:
 		all_serial_numbers =  soup.article.div.div.find_all('div')[-2].find_all('span')
@@ -84,14 +99,11 @@ def main():
 		print "-------------------Error: Failed to parse data from website: Bailing out!------------"
 		sys.exit()
 
+	list_numbers = sorted(list_numbers)
 
 	print "-------------------------Processing: Now Comes the good part!------------------\n ------------Searching for your serial numbers in the list----------"
 
-	draw = []
-
-	for serial in user_serial_numbers:
-		if serial in list_numbers:
-			draw.append(serial)
+	draw = set(list_numbers).intersection(set(user_serial_numbers))
 
 	if not draw:
 		print "-------------------------Error: Sorry no luck :( ----------------------------------"
