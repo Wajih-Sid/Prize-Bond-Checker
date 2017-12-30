@@ -77,8 +77,6 @@ def main():
 		first_prize = (soup.findAll('strong')[6].p.get_text())
 		second_prizes = soup.findAll('strong')[7].p.get_text().replace(u'\xa0','').rstrip().split()
 		
-		import pdb
-		pdb.set_trace()
 		if first_prize in user_serial_numbers:
 			print "Un Real dude!"
 		elif set(second_prizes).intersection(set(user_serial_numbers)):
