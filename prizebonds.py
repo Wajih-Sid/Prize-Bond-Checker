@@ -74,11 +74,12 @@ def main():
 
 	print "----------------------Processing: Looking for the big prizes first!-----------------"
 	try:
-		first_prize = (soup.findAll('strong')[6].p.get_text())
-		second_prizes = soup.findAll('strong')[7].p.get_text().replace(u'\xa0','').rstrip().split()
-		
+		first_prize = (soup.findAll('strong')[7].p.get_text())
+		second_prizes = soup.findAll('strong')[8].p.get_text().replace(u'\xa0','').replace(',', '').rstrip().split()
+
 		if first_prize in user_serial_numbers:
 			print "Un Real dude!"
+
 		elif set(second_prizes).intersection(set(user_serial_numbers)):
 			print "You won the second prize!!!!"
 	except:
@@ -109,8 +110,8 @@ def main():
 		sys.exit()
 
 
-	print "-----------Processing: What!!!!!!!!!-- You Actually won something bro!---------"
-	print "---- Processing: Here is the list of numbers you won %s" % draw
+	print "-----------What!!!!!!!!!-- You Actually won something bro!---------"
+	print "---- Processing: Here is the list of numbers you won  --> <<<%s>>>" % (', '.join(list(draw)))
 
 
 # Entry point
