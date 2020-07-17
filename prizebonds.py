@@ -100,7 +100,7 @@ def main():
 
 	list_numbers = sorted(list_numbers)
 
-	print "-------------------------Processing: Now Comes the good part!------------------\n ------------Searching for your serial numbers in the list----------"
+	print "-------------------------Processing------------------\n ------------Searching for your serial numbers in the list----------"
 
 	draw = set(list_numbers).intersection(set(user_serial_numbers))
 
@@ -110,7 +110,7 @@ def main():
 		sys.exit()
 
 
-	print "-----------What!!!!!!!!!-- You Actually won something bro!---------"
+	print "-----------Won!---------"
 	print "---- Processing: Here is the list of numbers you won  --> <<<%s>>>" % (', '.join(list(draw)))
 
 
